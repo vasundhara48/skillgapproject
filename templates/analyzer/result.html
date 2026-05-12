@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Your Result — {{ analysis.name }} | Skill Gap Analyzer{% endblock %}
+
+{% block content %}
+
+<!-- RESULT HERO -->
+<section class="result-hero">
+  <div class="result-hero-inner">
+    <div class="result-meta-row">
+      <span class="result-name-tag">{{ analysis.name }}</span>
+      <span class="meta-sep">·</span>
+      <span class="result-role-tag">{{ job_role_display }}</span>
+      <span class="meta-sep">·</span>
+      <span class="result-exp-tag">{{ exp_display }}</span>
+    </div>
+    <h1 class="result-heading">Your Skill Analysis Report</h1>
+
+    <!-- SCORE DISPLAY -->
+    <div class="score-block">
+      <!-- Circle -->
+      <div class="score-circle-wrap">
+        <svg class="score-svg" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="54"
+            fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="10"/>
+          <circle cx="60" cy="60" r="54"
+            fill="none" stroke="white" stroke-width="10"
+            stroke-linecap="round"
+            stroke-dasharray="{{ circumference }}"
+            stroke-dashoffset="{{ circumference }}"
+            transform="rotate(-90 60 60)"
+            class="score-ring"
+            data-target="{{ score_offset }}"/>
+        </svg>
+        <div class="score-center">
+          <span class="score-pct" id="scoreDisplay">0%</span>
+          <span class="score-lbl">Match</span>
+        </div>
+      </div>
+
+      <!-- Info -->
+      <div class="score-info-block">
+        <div class="result-badge result-badge-{{ badge.1 }}">{{ badge.2 }} {{ badge.0 }}</div>
+        <p class="result-msg">{{ badge_msg }}</p>
+        <div class="result-counts">
+          <div class="count-item">
+            <span class="count-num count-green">{{ matched_count }}</span>
+            <span class="count-label">Skills You Have</span>
+          </div>
+          <div class="count-divider"></div>
+          <div class="count-item">
+            <span class="count-num count-red">{{ gap_count }}</span>
+            <span class="count-label">Skills to Learn</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULT BODY -->
+<section class="result-body">
+  <div class="result-body-inner">
+    <div class="result-cols">
+
+      <!-- LEFT: Skill Breakdown -->
+      <div class="result-col">
+        <h2 class="col-heading">Skills Breakdown</h2>
+
+        {% if core_skills %}
+        <div class="skill-group">
+          <div class="group-label core-label">Core Skills</div>
+          <div class="skills-wrap">
+            {% for skill, matched in core_skills %}
+            <div class="skill-tag {% if matched %}skill-ok{% else %}skill-no{% endif %}">
+              {% if matched %}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              {% else %}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              {% endif %}
+              {{ skill }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if tool_skills %}
+        <div class="skill-group">
+          <div class="group-label tools-label">Tools & Technologies</div>
+          <div class="skills-wrap">
+            {% for skill, matched in tool_skills %}
+            <div class="skill-tag {% if matched %}skill-ok{% else %}skill-no{% endif %}">
+              {% if matched %}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              {% else %}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              {% endif %}
+              {{ skill }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+
+        {% if soft_skills %}
+        <div class="skill-group">
+          <div class="group-label soft-label">Soft Skills</div>
+          <div class="skills-wrap">
+            {% for skill, matched in soft_skills %}
+            <div class="skill-tag {% if matched %}skill-ok{% else %}skill-no{% endif %}">
+              {% if matched %}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+              {% else %}
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              {% endif %}
+              {{ skill }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- RIGHT: Learning Roadmap -->
+      <div class="result-col">
+        <h2 class="col-heading">Learning Roadmap</h2>
+
+        {% if resources %}
+        <div class="resources-wrap">
+          {% for r in resources %}
+          <a href="{{ r.url }}" target="_blank" rel="noopener" class="resource-item">
+            <div class="resource-num">{{ forloop.counter }}</div>
+            <div class="resource-detail">
+              <div class="resource-skill-name">{{ r.skill }}</div>
+              <div class="resource-platform">{{ r.platform }}</div>
+              <div class="resource-dur">⏱ {{ r.duration }}</div>
+            </div>
+            <div class="resource-link-icon">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="no-gaps-msg">
+          <div class="no-gaps-emoji">🎉</div>
+          <h3>You have all required skills!</h3>
+          <p>Focus on building projects and your portfolio. Start applying now!</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="result-actions">
+      <a href="{% url 'analyze' %}" class="btn-outline-dark">Analyze Again</a>
+      <a href="{% url 'leaderboard' %}" class="btn-outline-dark">View Leaderboard</a>
+      <button onclick="window.print()" class="btn-gradient">Print / Save Report</button>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+window.addEventListener('load', () => {
+  // Score count-up animation
+  const displayEl = document.getElementById('scoreDisplay');
+  const target = {{ score_int }};
+  let current = 0;
+  const step = Math.ceil(target / 60);
+  const timer = setInterval(() => {
+    current = Math.min(current + step, target);
+    displayEl.textContent = current + '%';
+    if (current >= target) clearInterval(timer);
+  }, 25);
+
+  // Circle animation
+  const ring = document.querySelector('.score-ring');
+  const finalOffset = parseFloat(ring.dataset.target);
+  setTimeout(() => {
+    ring.style.transition = 'stroke-dashoffset 1.4s cubic-bezier(0.4, 0, 0.2, 1)';
+    ring.style.strokeDashoffset = finalOffset;
+  }, 100);
+});
+</script>
+{% endblock %}

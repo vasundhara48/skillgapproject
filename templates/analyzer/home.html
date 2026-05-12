@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Skill Gap Analyzer — Analyze Your Skills. Build Your Career.{% endblock %}
+
+{% block content %}
+
+<!-- ===== HERO SECTION — blue to purple gradient, EXACT like screenshot ===== -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <h1 class="hero-title">
+        Analyze Your Skills.<br>
+        Build Your Career.
+      </h1>
+      <p class="hero-subtitle">
+        Skill Gap Analyzer helps students and freshers identify missing skills
+        required for their dream job roles.
+      </p>
+      <div class="hero-actions">
+        <a href="{% url 'analyze' %}" class="btn-white">Get Started</a>
+        <a href="{% url 'leaderboard' %}" class="btn-outline-white">View Leaderboard</a>
+      </div>
+      {% if total_analyses > 0 %}
+      <p class="hero-stat">
+        <strong>{{ total_analyses }}+</strong> analyses completed by students like you
+      </p>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- ===== FEATURE CARDS — white bg, rounded cards, EXACT like screenshot ===== -->
+<section class="cards-section">
+  <div class="cards-container">
+    <div class="card">
+      <div class="card-icon card-icon-blue">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </div>
+      <h3 class="card-title">Skill Analysis</h3>
+      <p class="card-desc">Compare your current skills with industry-required skills.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon card-icon-purple">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <h3 class="card-title">Career Guidance</h3>
+      <p class="card-desc">Get a clear roadmap to improve your technical skills.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-icon card-icon-green">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <h3 class="card-title">Placement Ready</h3>
+      <p class="card-desc">Designed especially for students and freshers.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== HOW IT WORKS ===== -->
+<section class="how-section">
+  <div class="section-container">
+    <p class="section-label">How it works</p>
+    <h2 class="section-heading">Three steps to clarity</h2>
+    <div class="steps-grid">
+      <div class="step">
+        <div class="step-number">01</div>
+        <h4>Enter Your Skills</h4>
+        <p>List the skills you currently have — technologies, tools, languages.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">02</div>
+        <h4>Choose Your Target Role</h4>
+        <p>Select from 15 in-demand tech roles you want to get hired into.</p>
+      </div>
+      <div class="step">
+        <div class="step-number">03</div>
+        <h4>Get Your Roadmap</h4>
+        <p>See exactly which skills you're missing and where to learn them free.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== JOB ROLES ===== -->
+<section class="roles-section">
+  <div class="section-container">
+    <p class="section-label">Supported Roles</p>
+    <h2 class="section-heading">15 in-demand tech roles</h2>
+    <div class="roles-grid">
+      {% for value, label in job_roles %}
+      <a href="{% url 'analyze' %}" class="role-tag">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===== CTA BANNER ===== -->
+<section class="cta-banner">
+  <div class="cta-inner">
+    <h2>Ready to find your skill gaps?</h2>
+    <p>Free, instant, no signup required. Takes less than 2 minutes.</p>
+    <a href="{% url 'analyze' %}" class="btn-white">Start Analysis →</a>
+  </div>
+</section>
+
+{% endblock %}

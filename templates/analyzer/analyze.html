@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Analyze Your Skills — Skill Gap Analyzer{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="page-label">Start Here</p>
+    <h1 class="page-title">Tell us about yourself</h1>
+    <p class="page-subtitle">Enter your details and current skills — we'll show you exactly what to learn next.</p>
+  </div>
+</section>
+
+<section class="form-section">
+  <div class="form-card">
+    <form method="POST" action="{% url 'analyze' %}" id="analyzeForm" novalidate>
+      {% csrf_token %}
+
+      <!-- Row 1 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Full Name <span class="req">*</span></label>
+          <input type="text" id="name" name="name" placeholder="e.g. Rahul Sharma"
+            value="{{ request.POST.name }}" required autocomplete="name" />
+        </div>
+        <div class="form-group">
+          <label for="email">Email <span class="opt">(optional)</span></label>
+          <input type="email" id="email" name="email" placeholder="e.g. rahul@gmail.com"
+            value="{{ request.POST.email }}" autocomplete="email" />
+        </div>
+      </div>
+
+      <!-- Row 2 -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="job_role">Target Job Role <span class="req">*</span></label>
+          <select id="job_role" name="job_role" required>
+            <option value="">— Select a role —</option>
+            {% for value, label in job_roles %}
+            <option value="{{ value }}" {% if request.POST.job_role == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="experience_level">Experience Level <span class="req">*</span></label>
+          <select id="experience_level" name="experience_level" required>
+            <option value="">— Select level —</option>
+            {% for value, label in experience_levels %}
+            <option value="{{ value }}" {% if request.POST.experience_level == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <!-- Skills textarea -->
+      <div class="form-group">
+        <label for="skills">
+          Your Current Skills <span class="req">*</span>
+          
+        </label>
+        <textarea id="skills" name="skills" rows="4" required
+          placeholder="e.g. Python, SQL, HTML, CSS, JavaScript, Git, Linux, React...">{{ request.POST.skills }}</textarea>
+      </div>
+
+      <!-- Skill suggestions (role select hone par) -->
+      <div id="suggestBox" class="suggest-box" style="display:none;">
+        <p class="suggest-label">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+          Is role ke liye required skills — click karke add karo:
+        </p>
+        <div id="chipWrap" class="chip-wrap"></div>
+      </div>
+
+      <div class="form-footer">
+        <button type="submit" id="submitBtn" class="btn-submit">
+          <span class="btn-label">Analyze My Skills</span>
+          <svg class="btn-arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          <span class="btn-spinner" style="display:none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="spin"><circle cx="12" cy="12" r="10" stroke-opacity="0.3"/><path d="M12 2a10 10 0 0 1 10 10"/></svg>
+          </span>
+        </button>
+        <p class="form-note">✓ Free &nbsp;·&nbsp; ✓ Instant &nbsp;·&nbsp; ✓ No signup</p>
+      </div>
+    </form>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const roleSelect = document.getElementById('job_role');
+const suggestBox = document.getElementById('suggestBox');
+const chipWrap = document.getElementById('chipWrap');
+const skillsInput = document.getElementById('skills');
+
+roleSelect.addEventListener('change', async () => {
+  const role = roleSelect.value;
+  if (!role) { suggestBox.style.display = 'none'; return; }
+  try {
+    const res = await fetch(`/api/skills/?role=${role}`);
+    const data = await res.json();
+    chipWrap.innerHTML = '';
+    data.skills.forEach(skill => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'chip';
+      btn.textContent = skill;
+      btn.onclick = () => addSkill(skill, btn);
+      chipWrap.appendChild(btn);
+    });
+    suggestBox.style.display = 'block';
+    // Mark already added
+    updateChipStates();
+  } catch(e) {}
+});
+
+skillsInput.addEventListener('input', updateChipStates);
+
+function updateChipStates() {
+  const current = skillsInput.value.split(',').map(s => s.trim().toLowerCase());
+  chipWrap.querySelectorAll('.chip').forEach(btn => {
+    const isAdded = current.includes(btn.textContent.trim().toLowerCase());
+    btn.classList.toggle('chip-added', isAdded);
+    btn.disabled = isAdded;
+  });
+}
+
+function addSkill(skill, btn) {
+  const current = skillsInput.value;
+  const arr = current ? current.split(',').map(s => s.trim()).filter(Boolean) : [];
+  if (!arr.map(s => s.toLowerCase()).includes(skill.toLowerCase())) {
+    arr.push(skill);
+    skillsInput.value = arr.join(', ');
+    btn.classList.add('chip-added');
+    btn.disabled = true;
+  }
+}
+
+document.getElementById('analyzeForm').addEventListener('submit', function() {
+  const btn = document.getElementById('submitBtn');
+  btn.querySelector('.btn-label').textContent = 'Analyzing...';
+  btn.querySelector('.btn-arrow').style.display = 'none';
+  btn.querySelector('.btn-spinner').style.display = 'inline-flex';
+  btn.disabled = true;
+});
+</script>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Leaderboard — Skill Gap Analyzer{% endblock %}
+
+{% block content %}
+
+<section class="page-hero">
+  <div class="page-hero-inner">
+    <p class="page-label">Community</p>
+    <h1 class="page-title">Skill Leaderboard</h1>
+    <p class="page-subtitle">Top performers across different job roles.</p>
+  </div>
+</section>
+
+<section class="lb-section">
+  <div class="lb-container">
+    {% if analyses %}
+    <div class="lb-table-wrap">
+      <table class="lb-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Experience</th>
+            <th>Score</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in analyses %}
+          <tr class="{% if forloop.counter == 1 %}rank-gold{% elif forloop.counter == 2 %}rank-silver{% elif forloop.counter == 3 %}rank-bronze{% endif %}">
+            <td class="rank-cell">
+              {% if forloop.counter == 1 %}🥇
+              {% elif forloop.counter == 2 %}🥈
+              {% elif forloop.counter == 3 %}🥉
+              {% else %}<span class="rank-num">{{ forloop.counter }}</span>{% endif %}
+            </td>
+            <td class="name-cell">{{ a.name }}</td>
+            <td class="role-cell">{{ a.get_job_role_display }}</td>
+            <td class="exp-cell">{{ a.get_experience_level_display }}</td>
+            <td class="score-cell">
+              <div class="score-bar-bg">
+                <div class="score-bar-fg {% if a.skill_score >= 80 %}bar-green{% elif a.skill_score >= 60 %}bar-amber{% else %}bar-red{% endif %}"
+                  style="width:{{ a.skill_score }}%"></div>
+              </div>
+              <span class="score-pct-val">{{ a.skill_score }}%</span>
+            </td>
+            <td>
+              {% if a.skill_score >= 80 %}<span class="status-chip chip-green">Ready</span>
+              {% elif a.skill_score >= 60 %}<span class="status-chip chip-amber">Almost</span>
+              {% else %}<span class="status-chip chip-red">Learning</span>{% endif %}
+            </td>
+            <td class="date-cell">{{ a.created_at|date:"d M Y" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="lb-empty">
+      <div class="lb-empty-icon">📊</div>
+      
+      <a href="{% url 'analyze' %}" class="btn-gradient">Get Started</a>
+    </div>
+    {% endif %}
+    <div class="lb-cta">
+      <a href="{% url 'analyze' %}" class="btn-gradient">Analyze My Skills</a>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
